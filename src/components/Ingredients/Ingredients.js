@@ -1,14 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import IngreditenList from "./IngredientList";
 import IngredientForm from "./IngredientForm";
 import Search from "./Search";
 
 function Ingredients() {
   const [userIngredients, setUserIngredients] = useState([]);
-  const addIngredientsHandler = (ingredient) => {
+  useEffect(() => {
+    const fetchHandler = async () => {
+      const response = await fetch(
+        "https://sample-26d34-default-rtdb.firebaseio.com/ingredients.json"
+      );
+      const data = await response.json();
+      const loadedList = [];
+      for (const key in data) {
+        loadedList.push({
+          id: key,
+          title: data[key].title,
+          amount: data[key].amount,
+        });
+      }
+      setUserIngredients(loadedList);
+    };
+    fetchHandler();
+  }, []);
+  const addIngredientsHandler = async (ingredient) => {
+    const response = await fetch(
+      "https://sample-26d34-default-rtdb.firebaseio.com/ingredients.json",
+      {
+        method: "POST",
+        body: JSON.stringify(ingredient),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    const data = await response.json();
+
     setUserIngredients((prev) => [
       ...prev,
-      { id: Math.random().toString(), ...ingredient }, //adding id and keeping the key value pair by ...ingredient
+      { id: data.name, ...ingredient }, //adding id and keeping the key value pair by ...ingredient
     ]);
   };
   const removeIngredientHandler = (id) => {
