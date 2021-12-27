@@ -11,6 +11,11 @@ function Ingredients() {
       { id: Math.random().toString(), ...ingredient }, //adding id and keeping the key value pair by ...ingredient
     ]);
   };
+  const removeIngredientHandler = (id) => {
+    setUserIngredients((prev) =>
+      prev.filter((ingredient) => ingredient.id !== id)
+    );
+  };
   console.log(userIngredients);
   return (
     <div className="App">
@@ -19,7 +24,10 @@ function Ingredients() {
       <section>
         <Search />
         {/* Need to add list here! */}
-        <IngreditenList ingredients={userIngredients} />
+        <IngreditenList
+          onRemoveItem={removeIngredientHandler}
+          ingredients={userIngredients}
+        />
       </section>
     </div>
   );
