@@ -1,27 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import IngreditenList from "./IngredientList";
 import IngredientForm from "./IngredientForm";
 import Search from "./Search";
 
 function Ingredients() {
   const [userIngredients, setUserIngredients] = useState([]);
-  useEffect(() => {
-    const fetchHandler = async () => {
-      const response = await fetch(
-        "https://sample-26d34-default-rtdb.firebaseio.com/ingredients.json"
-      );
-      const data = await response.json();
-      const loadedList = [];
-      for (const key in data) {
-        loadedList.push({
-          id: key,
-          title: data[key].title,
-          amount: data[key].amount,
-        });
-      }
-      setUserIngredients(loadedList);
-    };
-    fetchHandler();
+
+  const filter = useCallback((filteredingredients) => {
+    setUserIngredients(filteredingredients);
   }, []);
   const addIngredientsHandler = async (ingredient) => {
     const response = await fetch(
@@ -50,7 +36,7 @@ function Ingredients() {
       <IngredientForm onAdd={addIngredientsHandler} />
 
       <section>
-        <Search />
+        <Search onLoading={filter} />
         {/* Need to add list here! */}
         <IngreditenList
           onRemoveItem={removeIngredientHandler}
