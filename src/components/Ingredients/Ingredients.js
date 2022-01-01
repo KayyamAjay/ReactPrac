@@ -25,7 +25,16 @@ function Ingredients() {
       { id: data.name, ...ingredient }, //adding id and keeping the key value pair by ...ingredient
     ]);
   };
-  const removeIngredientHandler = (id) => {
+  const removeIngredientHandler = async (id) => {
+    const response = await fetch(
+      `https://sample-26d34-default-rtdb.firebaseio.com/ingredients/${id}.json`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (response.ok) {
+      console.log("deleted the selected item");
+    }
     setUserIngredients((prev) =>
       prev.filter((ingredient) => ingredient.id !== id)
     );
