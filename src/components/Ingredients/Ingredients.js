@@ -1,15 +1,27 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useReducer, useCallback } from "react";
 import IngreditenList from "./IngredientList";
 import IngredientForm from "./IngredientForm";
 import Search from "./Search";
 import ErrorModal from "../UI/ErrorModal";
-
+const ingredientReducer = (state, action) => {
+  if (action.type === "SET") {
+    return action.ingredients;
+  }
+  if (action.type === "ADD") {
+    return [...state, action.ingredients];
+  }
+  if (action.type === "DELETE") {
+    return state.filter((ing) => ing.id !== action.id);
+  } else {
+    throw new Error("Error");
+  }
+};
 function Ingredients() {
-  const [userIngredients, setUserIngredients] = useState([]);
+  const [userIngredients, dispatch] = useReducer(ingredientReducer, []);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const filter = useCallback((filteredingredients) => {
-    setUserIngredients(filteredingredients);
+    dispatch({ type: "SET", ingredients: filteredingredients });
   }, []);
   const addIngredientsHandler = async (ingredient) => {
     setLoading(true);
@@ -23,10 +35,11 @@ function Ingredients() {
     );
     const data = await response.json();
     setLoading(false);
-    setUserIngredients((prev) => [
-      ...prev,
-      { id: data.name, ...ingredient }, //adding id and keeping the key value pair by ...ingredient
-    ]);
+    // setUserIngredients((prev) => [
+    //   ...prev,
+    //   { id: data.name, ...ingredient }, //adding id and keeping the key value pair by ...ingredient
+    // ]);
+    dispatch({ type: "ADD", ingredients: { id: data.name, ...ingredient } });
   };
   const removeIngredientHandler = async (id) => {
     setLoading(true);
@@ -41,9 +54,10 @@ function Ingredients() {
       if (response.ok) {
         console.log("deleted the selected item");
       }
-      setUserIngredients((prev) =>
-        prev.filter((ingredient) => ingredient.id !== id)
-      );
+      // setUserIngredients((prev) =>
+      //   prev.filter((ingredient) => ingredient.id !== id)
+      // );
+      dispatch({ type: "DELETE", id: id });
     } catch (err) {
       setError("something went wrong!");
       setLoading(false);
